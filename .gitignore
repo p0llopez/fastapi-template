@@ -12,3 +12,5 @@ wheels/
 .env
 
 .ruff_cache/
+
+AGENTS.md
