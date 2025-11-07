@@ -3,6 +3,8 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
 
+from src.contexts.shared.domain.aggregate_root import AggregateRoot
+
 
 class ApiKey(BaseModel):
     api_key_id: UUID = Field(..., alias="id")
@@ -29,7 +31,7 @@ class ApiKey(BaseModel):
         )
 
 
-class User(BaseModel):
+class User(AggregateRoot):
     user_id: UUID = Field(..., alias="id")
     email: str | None
     username: str
