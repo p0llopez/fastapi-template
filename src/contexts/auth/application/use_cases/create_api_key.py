@@ -9,7 +9,7 @@ class CreateApiKeyUseCase:
     def __init__(self, user_repository: UserRepository) -> None:
         self.user_repository = user_repository
 
-    async def execute(self, user_id: UUID) -> ApiKey:
+    async def execute(self, user_id: UUID) -> ApiKey | None:
         user = await self.user_repository.find_by_id(user_id)
 
         if not user:
