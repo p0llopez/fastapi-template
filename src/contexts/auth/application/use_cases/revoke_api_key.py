@@ -26,8 +26,8 @@ class RevokeApiKeyUseCase:
             None,
         )
         if not api_key:
-            raise ApiKeyNotFoundError(UUID(dto.api_key))
+            raise ApiKeyNotFoundError(dto.api_key)
 
-        user.revoke_api_key(UUID(dto.api_key))
+        user.revoke_api_key(api_key.api_key_id)
 
         await self.user_repository.save(user)

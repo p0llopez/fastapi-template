@@ -76,8 +76,20 @@ fmt: ## Format code with ruff
 lint: ## Run lint with ruff
 	@command -v ruff >/dev/null 2>&1 && ruff check src tests --fix || true
 
-test: ## Run tests with pytest
-	@command -v pytest >/dev/null 2>&1 && pytest -q || true
+test: ## Run all tests with pytest
+	@command -v pytest >/dev/null 2>&1 && pytest || true
+
+test-unit: ## Run only unit tests
+	@command -v pytest >/dev/null 2>&1 && pytest -m unit || true
+
+test-integration: ## Run only integration tests
+	@command -v pytest >/dev/null 2>&1 && pytest -m integration || true
+
+test-e2e: ## Run only e2e tests
+	@command -v pytest >/dev/null 2>&1 && pytest -m e2e || true
+
+test-cov: ## Run tests with coverage report
+	@command -v pytest >/dev/null 2>&1 && pytest --cov=src --cov-report=term-missing --cov-report=html || true
 
 all: install fmt lint test ## Run all dev tasks
 
@@ -93,4 +105,4 @@ cli: ## Run CLI command in container (usage: make cli args="auth list-users")
 		$(COMPOSE) -f $(COMPOSE_FILE) exec $(SERVICE) uv run cli $(args); \
 	fi
 
-.PHONY: help start stop build restart logs shell db-shell migration-create migration-create-empty migration-upgrade migration-downgrade migration-history migration-current migration-show migration-sql all install fmt lint test clean cli
+.PHONY: help start stop build restart logs shell db-shell migration-create migration-create-empty migration-upgrade migration-downgrade migration-history migration-current migration-show migration-sql all install fmt lint test test-unit test-integration test-e2e test-cov clean cli
