@@ -7,6 +7,7 @@ A production-ready FastAPI template implementing Domain-Driven Design (DDD) and 
 - **Clean Architecture**: Organized by contexts following DDD principles
 - **Dependency Injection**: Using `dependency-injector` for better testability and modularity
 - **Authentication**: API Key-based authentication system ready to use
+- **CLI Commands**: Typer-based administrative CLI for user management and more
 - **Database Management**:
   - PostgreSQL with async SQLAlchemy
   - Alembic for database migrations
@@ -154,6 +155,24 @@ make all             # Run install, format, lint, and test
 make clean           # Remove __pycache__ and .pyc files
 ```
 
+### CLI Commands
+
+```bash
+# Make sure services are running first
+make start
+
+# Show CLI help
+make cli
+
+# Run CLI commands (dashes are converted to spaces):
+make cli users-list
+make cli users-create --username admin --email admin@example.com
+
+# For local development (without Docker):
+uv run cli users create --username admin --email admin@example.com
+uv run cli users list
+```
+
 ## 📚 Architecture Overview
 
 ### Domain-Driven Design (DDD)
@@ -201,21 +220,25 @@ To add a new feature (e.g., a "Products" context):
 
 1. Implement use cases and endpoints
 
-## 🔐 Authentication
+## 🔐 Authentication & Users
 
-The template includes an API Key authentication system:
+The template includes an API Key authentication system and user management:
 
-### Domain Model
+- **User Management**: Create and list users via CLI (passwords are bcrypt-hashed)
+- **API Keys**: Generate and validate API keys for authentication
+- **Secure Storage**: All sensitive data properly encrypted
 
-- **User**: Represents a user with username, email, and password
-- **ApiKey**: API keys associated with users for authentication
+### CLI User Management
 
-### Use Cases
+```bash
+# Create user (interactive prompt for password)
+make cli user-create
 
-- `AuthenticateWithApiKeyUseCase`: Validate API keys
-- `CreateApiKeyUseCase`: Generate new API keys for users
+# List users
+make cli user-list
+```
 
-### Example Usage
+### API Key Authentication
 
 ```python
 from src.contexts.auth.application.use_cases import AuthenticateWithApiKeyUseCase
@@ -311,29 +334,6 @@ Structured logging with Loguru:
 - Configurable log levels
 - JSON formatting for production
 - Console formatting for development
-
-## 🧪 Testing
-
-(Add your testing approach here)
-
-```bash
-# Run tests
-make test
-
-# With coverage
-pytest --cov=src --cov-report=html
-```
-
-## 🚢 Production Deployment
-
-### Using Docker Compose
-
-1. Update environment variables for production
-1. Build production images:
-   ```bash
-   docker compose -f docker-compose.yaml build
-   ```
-1. Deploy to your infrastructure (AWS, GCP, Azure, etc.)
 
 ## 🤝 Contributing
 

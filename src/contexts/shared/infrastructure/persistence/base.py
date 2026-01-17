@@ -17,13 +17,13 @@ class SQLAlchemyBaseModel(Base):
     __abstract__ = True
 
     created_at = Column(
-        DateTime,
+        DateTime(timezone=True),
         nullable=False,
         server_default=func.now(),
         comment="Timestamp when the record was created",
     )
     updated_at = Column(
-        DateTime,
+        DateTime(timezone=True),
         nullable=False,
         server_default=func.now(),
         onupdate=func.now(),

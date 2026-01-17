@@ -1,3 +1,7 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "fastapi-template"
 version = "0.1.0"
@@ -7,6 +11,7 @@ requires-python = ">=3.13"
 dependencies = [
     "alembic>=1.17.0",
     "asyncpg>=0.30.0",
+    "bcrypt>=5.0.0",
     "dependency-injector>=4.48.2",
     "fastapi[standard]>=0.119.1",
     "greenlet>=3.2.4",
@@ -15,7 +20,14 @@ dependencies = [
     "pydantic-settings>=2.11.0",
     "ruff>=0.14.3",
     "sqlalchemy>=2.0.44",
+    "typer>=0.19.2",
 ]
+
+[project.scripts]
+cli = "src.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
 
 [dependency-groups]
 dev = [

@@ -120,7 +120,7 @@ class UserSQLAlchemyRepository(UserRepository):
             model = result.scalar_one_or_none()
 
             if model:
-                user = self._to_domain(model)
+                user = model.to_domain()
                 self.cache_client.set(f"user:{user.user_id}", user)
                 return user
             return None
@@ -140,3 +140,12 @@ class UserSQLAlchemyRepository(UserRepository):
 
                 await session.delete(model)
                 await session.commit()
+
+    async def list_all(self) -> list[User]:
+        async with self.session_factory() as session:
+            result = await session.execute(
+                select(UserModel).options(selectinload(UserModel.api_keys))
+            )
+            models = result.scalars().all()
+
+            return [model.to_domain() for model in models]

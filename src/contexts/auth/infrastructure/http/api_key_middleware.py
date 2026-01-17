@@ -5,6 +5,7 @@ from fastapi import Depends, HTTPException, Request
 from fastapi.security import APIKeyHeader
 
 from src.contexts.auth.application.use_cases.authenticate_with_api_key import (
+    AuthenticateWithApiKeyDTO,
     AuthenticateWithApiKeyUseCase,
 )
 from src.contexts.auth.domain.errors import InactiveApiKeyError, InvalidApiKeyError
@@ -29,7 +30,7 @@ async def verify_api_key(
         raise HTTPException(status_code=401, detail="API key missing")
 
     try:
-        await authenticate_use_case.execute(api_key)
+        await authenticate_use_case.execute(AuthenticateWithApiKeyDTO(api_key=api_key))
     except InvalidApiKeyError as err:
         raise HTTPException(status_code=401, detail="Invalid API key") from err
     except InactiveApiKeyError as err:

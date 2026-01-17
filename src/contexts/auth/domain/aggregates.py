@@ -22,9 +22,9 @@ class ApiKey(BaseModel):
     ) -> "ApiKey":
         now = datetime.now(UTC)
         return ApiKey(
-            api_key_id=uuid4(),
+            id=uuid4(),
             user_id=user_id,
-            api_key=uuid4(),
+            api_key=str(uuid4()),
             is_active=True,
             created_at=now,
             updated_at=now,
@@ -52,7 +52,7 @@ class User(AggregateRoot):
         user_id = uuid4()
         now = datetime.now(UTC)
         return User(
-            user_id=user_id,
+            id=user_id,
             username=username,
             password=password,
             is_active=True,

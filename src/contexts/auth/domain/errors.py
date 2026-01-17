@@ -19,3 +19,9 @@ class UserNotFoundError(AuthError):
     def __init__(self, user_id: UUID) -> None:
         super().__init__(f"User with id {user_id} not found")
         self.user_id = user_id
+
+
+class ApiKeyNotFoundError(AuthError):
+    def __init__(self, api_key_id: UUID) -> None:
+        super().__init__(f"API key with id {api_key_id} not found")
+        self.api_key_id = api_key_id

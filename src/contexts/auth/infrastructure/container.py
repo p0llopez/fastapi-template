@@ -6,6 +6,9 @@ from src.contexts.auth.application.use_cases.authenticate_with_api_key import (
 from src.contexts.auth.application.use_cases.create_api_key import (
     CreateApiKeyUseCase,
 )
+from src.contexts.auth.application.use_cases.create_user import CreateUserUseCase
+from src.contexts.auth.application.use_cases.list_users import ListUsersUseCase
+from src.contexts.auth.application.use_cases.revoke_api_key import RevokeApiKeyUseCase
 from src.contexts.auth.infrastructure.persistence.user_repository import (
     UserSQLAlchemyRepository,
 )
@@ -27,4 +30,13 @@ class AuthContainer(containers.DeclarativeContainer):
     )
     authenticate_with_api_key_use_case = providers.Factory(
         AuthenticateWithApiKeyUseCase, user_repository=user_repository
+    )
+    create_user_use_case = providers.Factory(
+        CreateUserUseCase, user_repository=user_repository
+    )
+    list_users_use_case = providers.Factory(
+        ListUsersUseCase, user_repository=user_repository
+    )
+    revoke_api_key_use_case = providers.Factory(
+        RevokeApiKeyUseCase, user_repository=user_repository
     )

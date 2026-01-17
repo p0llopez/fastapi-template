@@ -21,7 +21,7 @@ stop: ## Stop services
 build: ## Build images with docker compose
 	$(COMPOSE) -f $(COMPOSE_FILE) build --parallel
 
-restart: stop start ## Reinicia los servicios
+restart: stop start ## Restart services
 
 logs: ## Follow logs for the app service
 	$(COMPOSE) -f $(COMPOSE_FILE) logs -f $(SERVICE)
@@ -85,4 +85,12 @@ clean: ## Clean pyc files and caches
 	@find . -name '__pycache__' -type d -exec rm -rf {} + || true
 	@find . -name '*.pyc' -delete || true
 
-.PHONY: help start stop build restart logs shell db-shell migration-create migration-create-empty migration-upgrade migration-downgrade migration-history migration-current migration-show migration-sql all install fmt lint test clean
+## CLI Commands
+cli: ## Run CLI command in container (usage: make cli args="auth list-users")
+	@if [ -z "$(args)" ]; then \
+		$(COMPOSE) -f $(COMPOSE_FILE) exec $(SERVICE) uv run cli --help; \
+	else \
+		$(COMPOSE) -f $(COMPOSE_FILE) exec $(SERVICE) uv run cli $(args); \
+	fi
+
+.PHONY: help start stop build restart logs shell db-shell migration-create migration-create-empty migration-upgrade migration-downgrade migration-history migration-current migration-show migration-sql all install fmt lint test clean cli
