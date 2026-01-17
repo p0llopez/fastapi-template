@@ -1,3 +1,7 @@
+from datetime import datetime
+from typing import cast
+from uuid import UUID
+
 from sqlalchemy import Boolean, Column, ForeignKey, String
 from sqlalchemy.orm import relationship
 
@@ -35,13 +39,13 @@ class UserModel(SQLAlchemyBaseModel):
 
     def to_domain(self) -> User:
         return User(
-            user_id=self.user_id,
-            username=self.username,
-            email=self.email,
-            password=self.password,
-            is_active=self.is_active,
-            created_at=self.created_at,
-            updated_at=self.updated_at,
+            id=UUID(str(self.user_id)),
+            username=str(self.username),
+            email=str(self.email) if self.email else None,
+            password=str(self.password),
+            is_active=bool(self.is_active),
+            created_at=cast("datetime", self.created_at),
+            updated_at=cast("datetime", self.updated_at),
             api_keys=[api_key.to_domain() for api_key in self.api_keys],
         )
 
@@ -69,10 +73,10 @@ class ApiKeyModel(SQLAlchemyBaseModel):
 
     def to_domain(self) -> ApiKey:
         return ApiKey(
-            api_key_id=self.api_key_id,
-            user_id=self.user_id,
-            api_key=self.api_key,
-            is_active=self.is_active,
-            created_at=self.created_at,
-            updated_at=self.updated_at,
+            id=UUID(str(self.api_key_id)),
+            user_id=UUID(str(self.user_id)),
+            api_key=str(self.api_key),
+            is_active=bool(self.is_active),
+            created_at=cast("datetime", self.created_at),
+            updated_at=cast("datetime", self.updated_at),
         )
