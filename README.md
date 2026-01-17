@@ -6,7 +6,7 @@ A production-ready FastAPI template implementing Domain-Driven Design (DDD) and 
 
 - **Clean Architecture**: Organized by contexts following DDD principles
 - **Dependency Injection**: Using `dependency-injector` for better testability and modularity
-- **Authentication**: API Key-based authentication system ready to use
+- **Authentication**: API Key middleware (global dependency) with public-route decorator
 - **CLI Commands**: Typer-based administrative CLI for user management and more
 - **Database Management**:
   - PostgreSQL with async SQLAlchemy
@@ -16,7 +16,7 @@ A production-ready FastAPI template implementing Domain-Driven Design (DDD) and 
 - **Code Quality**:
   - Ruff for linting and formatting (configured with extensive rule sets)
   - Pre-commit hooks
-  - Strict type checking with Python 3.13
+  - Type hints targeting Python 3.13
 - **Structured Logging**: Loguru integration with request/response middleware
 - **Settings Management**: Pydantic Settings with environment-based configuration
 - **Production Ready**:
@@ -28,7 +28,7 @@ A production-ready FastAPI template implementing Domain-Driven Design (DDD) and 
 ## 📋 Requirements
 
 - Python 3.13+
-- [uv](https://github.com/astral-sh/uv) - Fast Python package installer
+- [uv](https://github.com/astral-sh/uv) - Fast Python package installer (used locally and in Docker)
 - Docker & Docker Compose (for containerized deployment)
 - PostgreSQL 16+ (handled by Docker Compose)
 
@@ -44,7 +44,7 @@ fastapi-template/
 │       ├── auth/                  # Authentication context
 │       │   ├── domain/           # Domain models & repositories
 │       │   ├── application/      # Use cases
-│       │   └── infrastructure/   # Persistence & external services
+│       │   └── infrastructure/   # Persistence, HTTP middleware, CLI
 │       └── shared/               # Shared kernel
 │           ├── domain/
 │           └── infrastructure/   # Database, cache, logging
@@ -68,26 +68,10 @@ cd fastapi-template
 
 ### 2. Set Up Environment Variables
 
-Create a `.env` file in the `secrets/` directory:
+Create a `.env` file in the `secrets/` directory (used by the app and Docker Compose):
 
 ```bash
-mkdir -p secrets
-cat > secrets/.env << EOF
-# Application
-ENVIRONMENT=development
-LOG_LEVEL=INFO
-APP_PORT=8080
-
-# Database
-DATABASE_URL=postgresql+asyncpg://fastapi:fastapi@database:5432/fastapi_db
-DATABASE_USER=fastapi
-DATABASE_PASSWORD=fastapi
-DATABASE_NAME=fastapi_db
-DATABASE_PORT=5432
-
-# Security
-SECRET_KEY=your-secret-key-here-change-in-production
-EOF
+cp secrets/.env.example secrets/.env
 ```
 
 ### 3. Start with Docker Compose (Recommended)
@@ -111,7 +95,7 @@ make install
 # Or manually:
 uv sync
 
-# Run database migrations
+# Run database migrations (requires DATABASE_URL)
 make migration-upgrade
 
 # Start the application
@@ -134,6 +118,12 @@ make shell           # Open bash in app container
 make db-shell        # Open psql in database container
 ```
 
+If your environment file lives in `secrets/.env`, run:
+
+```bash
+ENV_FILE=secrets/.env make db-shell
+```
+
 ### Database Migrations
 
 ```bash
@@ -143,6 +133,8 @@ make migration-upgrade             # Apply all pending migrations
 make migration-downgrade           # Rollback last migration
 make migration-history             # Show migration history
 make migration-current             # Show current migration version
+make migration-show                # Show current head revision
+make migration-sql                 # Generate SQL for upgrade head
 ```
 
 ### Code Quality
@@ -164,13 +156,15 @@ make start
 # Show CLI help
 make cli
 
-# Run CLI commands (dashes are converted to spaces):
-make cli users-list
-make cli users-create --username admin --email admin@example.com
+# Run CLI commands (pass args explicitly):
+make cli args="auth list-users"
+make cli args="auth create-user --username admin --email admin@example.com"
+make cli args="auth create-api-key --user-id <uuid>"
+make cli args="auth deactivate-api-key --user-id <uuid> --api-key <key>"
 
 # For local development (without Docker):
-uv run cli users create --username admin --email admin@example.com
-uv run cli users list
+uv run cli auth create-user --username admin --email admin@example.com
+uv run cli auth list-users
 ```
 
 ## 📚 Architecture Overview
@@ -226,16 +220,16 @@ The template includes an API Key authentication system and user management:
 
 - **User Management**: Create and list users via CLI (passwords are bcrypt-hashed)
 - **API Keys**: Generate and validate API keys for authentication
-- **Secure Storage**: All sensitive data properly encrypted
+- **HTTP**: All routes require `X-API-Key` unless explicitly marked public
 
 ### CLI User Management
 
 ```bash
 # Create user (interactive prompt for password)
-make cli user-create
+make cli args="auth create-user"
 
 # List users
-make cli user-list
+make cli args="auth list-users"
 ```
 
 ### API Key Authentication
@@ -246,6 +240,18 @@ from src.contexts.auth.application.use_cases import AuthenticateWithApiKeyUseCas
 # In your endpoint:
 is_valid = await authenticate_use_case.execute(api_key="user-api-key")
 ```
+
+### HTTP Authentication Behavior
+
+- Global dependency: all routes require the `X-API-Key` header.
+- Public routes: decorate handlers with `@public` to bypass auth.
+- Health endpoints:
+  - `GET /health` is public.
+  - `GET /health-protected` requires `X-API-Key`.
+
+> Note: The auth HTTP endpoints are not exposed yet. Use the CLI for now or add a router under `src/contexts/auth/infrastructure/http/` and include it in `src/main.py`.
+
+````
 
 ## 🗄️ Database
 
@@ -262,7 +268,7 @@ make migration-upgrade
 
 # Rollback last migration
 make migration-downgrade
-```
+````
 
 ### Database Initialization
 
