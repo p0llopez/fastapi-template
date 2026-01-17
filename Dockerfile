@@ -6,7 +6,7 @@ LABEL maintainer="pol.lopez.cano@gmail.com" \
 
 WORKDIR /app
 
-RUN groupadd -r app && useradd -r -g app app
+RUN groupadd -r app && useradd -r -g app -m -d /home/app app
 
 FROM base AS builder
 

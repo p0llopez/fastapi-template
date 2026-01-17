@@ -5,3 +5,4 @@
 !/secrets
 !/migrations
 !/alembic.ini
+!README.md
