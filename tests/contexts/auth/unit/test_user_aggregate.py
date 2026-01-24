@@ -34,7 +34,7 @@ class TestUserAggregate:
         user = User.create(username="johndoe", password="pass123")
         api_key = user.create_api_key()
 
-        found = user.find_api_key(api_key.api_key)
+        found = user.find_api_key(api_key.key)
 
         assert found is not None
         assert found.api_key_id == api_key.api_key_id

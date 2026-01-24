@@ -22,7 +22,7 @@ class RevokeApiKeyUseCase:
             raise UserNotFoundError(dto.user_id)
 
         api_key = next(
-            (key for key in user.api_keys if key.api_key == dto.api_key),
+            (api_key for api_key in user.api_keys if api_key.key == dto.api_key),
             None,
         )
         if not api_key:
