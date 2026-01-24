@@ -8,29 +8,41 @@
     "helpers:pinGitHubActionDigests"
   ],
   "labels": ["dependencies"],
-  "enabledManagers": ["pre-commit"],
+  "timezone": "Europe/Madrid",
+  "schedule": ["after 9am on monday"],
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 0,
   "lockFileMaintenance": {
     "enabled": true,
-    "schedule": ["0 0 * * *"]
+    "schedule": ["before 9am on monday"]
   },
   "packageRules": [
     {
-      "description": "Group GitHub Actions updates",
+      "description": "Group and automerge GitHub Actions updates",
       "matchManagers": ["github-actions"],
       "groupName": "github-actions",
       "automerge": true
     },
     {
-      "description": "Automerge minor/patch updates for dev dependencies",
-      "matchDepTypes": ["dev"],
-      "matchUpdateTypes": ["patch", "minor"],
+      "description": "Group and automerge Docker minor/patch updates",
+      "matchDatasources": ["docker"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "docker-dependencies",
       "automerge": true
     },
     {
-      "description": "Group Python minor/patch updates",
+      "description": "Group and automerge Python minor/patch updates",
       "matchManagers": ["uv"],
       "matchUpdateTypes": ["minor", "patch"],
-      "groupName": "python-dependencies"
+      "groupName": "python-dependencies",
+      "automerge": true
+    },
+    {
+      "description": "Separate PR for Python major updates",
+      "matchManagers": ["uv"],
+      "matchUpdateTypes": ["major"],
+      "groupName": "python-major-updates",
+      "automerge": false
     }
   ]
 }
