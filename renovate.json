@@ -8,16 +8,10 @@
     "helpers:pinGitHubActionDigests"
   ],
   "labels": ["dependencies"],
-  "uv": {
-    "enabled": true,
-    "fileMatch": ["pyproject\\.toml$"]
-  },
+  "enabledManagers": ["pre-commit"],
   "lockFileMaintenance": {
     "enabled": true,
     "schedule": ["0 0 * * *"]
-  },
-  "pre-commit": {
-    "enabled": true
   },
   "packageRules": [
     {
