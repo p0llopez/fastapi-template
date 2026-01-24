@@ -55,7 +55,7 @@ class ApiKeyModel(SQLAlchemyBaseModel):
 
     api_key_id = Column(String, primary_key=True)
     user_id = Column(String, ForeignKey("users.user_id"), nullable=False)
-    api_key = Column(String, unique=True, nullable=False)
+    key = Column(String, unique=True, nullable=False)
     is_active = Column(Boolean, nullable=False)
 
     user = relationship("UserModel", back_populates="api_keys")
@@ -65,7 +65,7 @@ class ApiKeyModel(SQLAlchemyBaseModel):
         return ApiKeyModel(
             api_key_id=str(api_key.api_key_id),
             user_id=str(api_key.user_id),
-            api_key=api_key.api_key,
+            key=api_key.key,
             is_active=api_key.is_active,
             created_at=api_key.created_at,
             updated_at=api_key.updated_at,
@@ -75,7 +75,7 @@ class ApiKeyModel(SQLAlchemyBaseModel):
         return ApiKey(
             id=UUID(str(self.api_key_id)),
             user_id=UUID(str(self.user_id)),
-            api_key=str(self.api_key),
+            key=str(self.key),
             is_active=bool(self.is_active),
             created_at=cast("datetime", self.created_at),
             updated_at=cast("datetime", self.updated_at),
