@@ -9,7 +9,7 @@ from src.contexts.shared.domain.aggregate_root import AggregateRoot
 class ApiKey(BaseModel):
     api_key_id: UUID = Field(..., alias="id")
     user_id: UUID
-    api_key: str
+    key: str
     updated_at: datetime
     created_at: datetime
     is_active: bool = True
@@ -24,7 +24,7 @@ class ApiKey(BaseModel):
         return ApiKey(
             id=uuid4(),
             user_id=user_id,
-            api_key=str(uuid4()),
+            key=str(uuid4()),
             is_active=True,
             created_at=now,
             updated_at=now,
@@ -82,6 +82,6 @@ class User(AggregateRoot):
 
     def find_api_key(self, api_key: str) -> ApiKey | None:
         for key in self.api_keys:
-            if key.api_key == api_key:
+            if key.key == api_key:
                 return key
         return None
