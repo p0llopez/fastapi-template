@@ -14,17 +14,12 @@ class AuthenticateWithApiKeyUseCase:
         self.user_repository = user_repository
 
     async def execute(self, dto: AuthenticateWithApiKeyDTO) -> bool | None:
-        user = await self.user_repository.find_by_api_key(dto.api_key)
+        api_key = await self.user_repository.find_api_key_by_key(dto.api_key)
 
-        if not user:
+        if not api_key:
             raise InvalidApiKeyError
 
-        api_key_entity = user.find_api_key(dto.api_key)
-
-        if not api_key_entity:
-            raise InvalidApiKeyError
-
-        if not api_key_entity.is_active:
+        if not api_key.is_active:
             raise InactiveApiKeyError
 
         return True
