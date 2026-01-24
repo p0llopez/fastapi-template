@@ -20,7 +20,7 @@ services:
       database:
         condition: service_healthy
   database:
-    image: postgres:16-trixie
+    image: postgres:18-trixie
     container_name: fastapi-template-database
     env_file:
       - ./secrets/.env
