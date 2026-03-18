@@ -36,7 +36,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 FROM base AS runner
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
