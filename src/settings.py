@@ -33,6 +33,20 @@ class Settings(BaseSettings):
         description="CORS allowed origins",
     )
 
+    # Rate Limiting Settings
+    rate_limit_requests: int = Field(
+        default=100,
+        description="Maximum requests per window",
+    )
+    rate_limit_window_seconds: int = Field(
+        default=60,
+        description="Rate limit window duration in seconds",
+    )
+    rate_limit_exclude_paths: list[str] = Field(
+        default=["/health"],
+        description="Paths excluded from rate limiting",
+    )
+
     # Database Settings
     database_url: str = Field(
         description="Database connection URL",
