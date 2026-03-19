@@ -4,6 +4,11 @@ from uuid import UUID, uuid4
 from pydantic import BaseModel, Field
 
 from src.contexts.auth.domain.errors import ApiKeyNotFoundError
+from src.contexts.auth.domain.events import (
+    ApiKeyCreatedEvent,
+    ApiKeyRevokedEvent,
+    UserCreatedEvent,
+)
 from src.contexts.auth.domain.services import ApiKeyHasher
 from src.contexts.shared.domain.aggregate_root import AggregateRoot
 
@@ -53,7 +58,7 @@ class User(AggregateRoot):
     ) -> "User":
         user_id = uuid4()
         now = datetime.now(UTC)
-        return User(
+        user = User(
             id=user_id,
             username=username,
             password=password,
@@ -63,11 +68,18 @@ class User(AggregateRoot):
             email=email,
             api_keys=[],
         )
+        user.record_event(UserCreatedEvent(user_id=user_id, username=username))
+        return user
 
     def create_api_key(self) -> tuple[ApiKey, str]:
         api_key, plain_key = ApiKey.create(user_id=self.user_id)
         self.api_keys.append(api_key)
         self.updated_at = datetime.now(UTC)
+        self.record_event(
+            ApiKeyCreatedEvent(
+                user_id=self.user_id, api_key_id=api_key.api_key_id
+            )
+        )
         return api_key, plain_key
 
     def revoke_api_key(self, api_key_id: UUID) -> None:
@@ -76,6 +88,11 @@ class User(AggregateRoot):
                 api_key.is_active = False
                 api_key.updated_at = datetime.now(UTC)
                 self.updated_at = datetime.now(UTC)
+                self.record_event(
+                    ApiKeyRevokedEvent(
+                        user_id=self.user_id, api_key_id=api_key_id
+                    )
+                )
                 return
         raise ApiKeyNotFoundError
 
