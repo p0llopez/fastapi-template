@@ -35,7 +35,7 @@ dev = [
     "pytest>=9.0.2",
     "pytest-asyncio>=1.3.0",
     "pytest-cov>=7.0.0",
-    "ruff>=0.14.3",
+    "ruff>=0.15.7",
 ]
 
 [tool.ruff]
@@ -93,10 +93,13 @@ select = [
     "TRY"
 ]
 ignore = [
-    "TC003",
-    "TC002",
-    "TC001",
-    "RUF012"
+    "TC003",  # Move imports into TYPE_CHECKING block — breaks DI wiring at runtime
+    "TC002",  # Move third-party imports into TYPE_CHECKING block — same reason
+    "TC001",  # Move stdlib imports into TYPE_CHECKING block — same reason
+    "RUF012",  # Mutable class attributes should be annotated with ClassVar — conflicts with Pydantic models
+    "TRY003",  # Avoid long messages outside exception class — too verbose for inline raises
+    "EM101",   # Exception must not use string literal — extracting to variable adds noise
+    "EM102",   # Exception must not use f-string literal — same reason as EM101
 ]
 fixable = ["ALL"]
 unfixable = []

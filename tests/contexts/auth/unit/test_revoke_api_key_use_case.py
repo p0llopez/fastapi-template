@@ -26,9 +26,7 @@ class TestRevokeApiKeyUseCase:
         event_bus = InMemoryEventBus()
         use_case = RevokeApiKeyUseCase(fake_user_repository, event_bus)
 
-        await use_case.execute(
-            RevokeApiKeyDTO(user_id=user.user_id, api_key=plain_key)
-        )
+        await use_case.execute(RevokeApiKeyDTO(user_id=user.user_id, api_key=plain_key))
 
         saved_user = await fake_user_repository.find_by_id(user.user_id)
         assert saved_user is not None
@@ -41,9 +39,7 @@ class TestRevokeApiKeyUseCase:
         use_case = RevokeApiKeyUseCase(fake_user_repository, event_bus)
 
         with pytest.raises(UserNotFoundError):
-            await use_case.execute(
-                RevokeApiKeyDTO(user_id=uuid4(), api_key="any")
-            )
+            await use_case.execute(RevokeApiKeyDTO(user_id=uuid4(), api_key="any"))
 
     async def test_raises_error_for_nonexistent_api_key(
         self, fake_user_repository: FakeUserRepository, sample_user: User
@@ -54,7 +50,5 @@ class TestRevokeApiKeyUseCase:
 
         with pytest.raises(ApiKeyNotFoundError):
             await use_case.execute(
-                RevokeApiKeyDTO(
-                    user_id=sample_user.user_id, api_key="nonexistent"
-                )
+                RevokeApiKeyDTO(user_id=sample_user.user_id, api_key="nonexistent")
             )

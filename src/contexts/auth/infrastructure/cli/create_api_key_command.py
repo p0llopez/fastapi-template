@@ -20,9 +20,7 @@ def register_create_api_key_command(app: typer.Typer) -> None:
         container = AuthContainer(shared=SharedContainer())
         use_case = container.create_api_key_use_case()
         try:
-            plain_key = await use_case.execute(
-                CreateApiKeyDTO(user_id=UUID(user_id))
-            )
+            plain_key = await use_case.execute(CreateApiKeyDTO(user_id=UUID(user_id)))
         except UserNotFoundError as exc:
             console.print(f"[red]x[/red] {exc}")
             raise typer.Exit(code=1) from exc

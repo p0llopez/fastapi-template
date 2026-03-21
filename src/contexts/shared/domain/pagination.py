@@ -5,53 +5,78 @@ from uuid import UUID
 
 from src.contexts.shared.domain.errors import InvalidCursorError
 
-_VALID_DIRECTIONS = {"next", "previous"}
 
+class Cursor:
+    _VALID_DIRECTIONS = {"next", "previous"}
+    _EXPECTED_PARTS = 3
 
-def encode_cursor(direction: str, created_at: datetime, entity_id: UUID) -> str:
-    raw = f"{direction}|{created_at.isoformat()}|{entity_id}"
-    return base64.b64encode(raw.encode()).decode()
+    def __init__(self, direction: str, created_at: datetime, entity_id: UUID) -> None:
+        self.direction = direction
+        self.created_at = created_at
+        self.entity_id = entity_id
 
+    def encode(self) -> str:
+        raw = f"{self.direction}|{self.created_at.isoformat()}|{self.entity_id}"
+        return base64.b64encode(raw.encode()).decode()
 
-def decode_cursor(cursor: str) -> tuple[str, datetime, UUID]:
-    try:
-        raw = base64.b64decode(cursor.encode()).decode()
-    except Exception as exc:
-        raise InvalidCursorError("Cursor is not valid base64") from exc
+    @classmethod
+    def decode(cls, raw: str) -> Cursor:
+        try:
+            payload = base64.b64decode(raw.encode()).decode()
+        except Exception as exc:
+            raise InvalidCursorError("Cursor is not valid base64") from exc
 
-    parts = raw.split("|")
-    if len(parts) != 3:
-        raise InvalidCursorError("Cursor has unexpected format")
+        parts = payload.split("|")
+        if len(parts) != cls._EXPECTED_PARTS:
+            raise InvalidCursorError("Cursor has unexpected format")
 
-    direction, raw_dt, raw_id = parts
+        direction, raw_dt, raw_id = parts
 
-    if direction not in _VALID_DIRECTIONS:
-        raise InvalidCursorError(f"Unknown cursor direction: {direction!r}")
+        if direction not in cls._VALID_DIRECTIONS:
+            raise InvalidCursorError(f"Unknown cursor direction: {direction!r}")
 
-    try:
-        created_at = datetime.fromisoformat(raw_dt)
-    except ValueError as exc:
-        raise InvalidCursorError("Cursor datetime is invalid") from exc
+        try:
+            created_at = datetime.fromisoformat(raw_dt)
+        except ValueError as exc:
+            raise InvalidCursorError("Cursor datetime is invalid") from exc
 
-    if created_at.tzinfo is None:
-        created_at = created_at.replace(tzinfo=UTC)
+        if created_at.tzinfo is None:
+            created_at = created_at.replace(tzinfo=UTC)
 
-    try:
-        entity_id = UUID(raw_id)
-    except ValueError as exc:
-        raise InvalidCursorError("Cursor entity ID is not a valid UUID") from exc
+        try:
+            entity_id = UUID(raw_id)
+        except ValueError as exc:
+            raise InvalidCursorError("Cursor entity ID is not a valid UUID") from exc
 
-    return direction, created_at, entity_id
+        return cls(direction, created_at, entity_id)
+
+    @classmethod
+    def for_next(cls, created_at: datetime, entity_id: UUID) -> Cursor:
+        return cls("next", created_at, entity_id)
+
+    @classmethod
+    def for_previous(cls, created_at: datetime, entity_id: UUID) -> Cursor:
+        return cls("previous", created_at, entity_id)
+
+    @property
+    def is_previous(self) -> bool:
+        return self.direction == "previous"
 
 
 @dataclass(frozen=True, slots=True)
 class CursorParams:
+    _MIN_PAGE_SIZE = 1
+    _MAX_PAGE_SIZE = 100
+
     cursor: str | None = None
     page_size: int = 20
 
     def __post_init__(self) -> None:
-        if not (1 <= self.page_size <= 100):
-            raise ValueError(f"page_size must be between 1 and 100, got {self.page_size}")
+        if not (self._MIN_PAGE_SIZE <= self.page_size <= self._MAX_PAGE_SIZE):
+            raise ValueError(
+                f"page_size must be between {self._MIN_PAGE_SIZE}"
+                f" and {self._MAX_PAGE_SIZE}, got {self.page_size}"
+            )
 
 
 @dataclass(frozen=True, slots=True)

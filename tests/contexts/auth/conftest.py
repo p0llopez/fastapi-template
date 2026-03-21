@@ -4,7 +4,6 @@ import pytest
 
 from src.contexts.auth.domain.aggregates import ApiKey, User
 from src.contexts.auth.domain.repositories import UserRepository
-from src.contexts.auth.domain.services import ApiKeyHasher
 from src.contexts.shared.domain.pagination import CursorParams, CursorResult
 
 
@@ -40,9 +39,7 @@ class FakeUserRepository(UserRepository):
                     return api_key
         return None
 
-    async def list_paginated(
-        self, params: CursorParams
-    ) -> CursorResult[User]:
+    async def list_paginated(self, params: CursorParams) -> CursorResult[User]:
         users = list(self._users.values())
         return CursorResult(
             items=users[: params.page_size],

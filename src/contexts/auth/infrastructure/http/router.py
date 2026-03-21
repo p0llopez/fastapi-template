@@ -79,9 +79,7 @@ async def list_users(
     cursor: str | None = None,
     page_size: int = 20,
 ) -> PaginatedUsersResponse:
-    result = await use_case.execute(
-        ListUsersDTO(cursor=cursor, page_size=page_size)
-    )
+    result = await use_case.execute(ListUsersDTO(cursor=cursor, page_size=page_size))
     return PaginatedUsersResponse(
         items=[
             UserResponse(

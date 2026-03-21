@@ -76,9 +76,7 @@ class User(AggregateRoot):
         self.api_keys.append(api_key)
         self.updated_at = datetime.now(UTC)
         self.record_event(
-            ApiKeyCreatedEvent(
-                user_id=self.user_id, api_key_id=api_key.api_key_id
-            )
+            ApiKeyCreatedEvent(user_id=self.user_id, api_key_id=api_key.api_key_id)
         )
         return api_key, plain_key
 
@@ -89,9 +87,7 @@ class User(AggregateRoot):
                 api_key.updated_at = datetime.now(UTC)
                 self.updated_at = datetime.now(UTC)
                 self.record_event(
-                    ApiKeyRevokedEvent(
-                        user_id=self.user_id, api_key_id=api_key_id
-                    )
+                    ApiKeyRevokedEvent(user_id=self.user_id, api_key_id=api_key_id)
                 )
                 return
         raise ApiKeyNotFoundError

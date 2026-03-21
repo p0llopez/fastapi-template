@@ -12,9 +12,7 @@ class CreateApiKeyDTO:
 
 
 class CreateApiKeyUseCase:
-    def __init__(
-        self, user_repository: UserRepository, event_bus: EventBus
-    ) -> None:
+    def __init__(self, user_repository: UserRepository, event_bus: EventBus) -> None:
         self.user_repository = user_repository
         self.event_bus = event_bus
 

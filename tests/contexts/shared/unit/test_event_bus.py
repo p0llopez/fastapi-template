@@ -3,7 +3,9 @@ from dataclasses import dataclass
 import pytest
 
 from src.contexts.shared.domain.events import DomainEvent
-from src.contexts.shared.infrastructure.events.in_memory_event_bus import InMemoryEventBus
+from src.contexts.shared.infrastructure.events.in_memory_event_bus import (
+    InMemoryEventBus,
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -53,10 +55,10 @@ class TestInMemoryEventBus:
         bus = InMemoryEventBus()
         calls: list[str] = []
 
-        async def first_handler(event: DomainEvent) -> None:
+        async def first_handler(_event: DomainEvent) -> None:
             calls.append("first")
 
-        async def second_handler(event: DomainEvent) -> None:
+        async def second_handler(_event: DomainEvent) -> None:
             calls.append("second")
 
         bus.subscribe(OrderPlaced, first_handler)

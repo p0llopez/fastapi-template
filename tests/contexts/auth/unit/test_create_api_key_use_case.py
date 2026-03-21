@@ -24,9 +24,7 @@ class TestCreateApiKeyUseCase:
         event_bus = InMemoryEventBus()
         use_case = CreateApiKeyUseCase(fake_user_repository, event_bus)
 
-        plain_key = await use_case.execute(
-            CreateApiKeyDTO(user_id=sample_user.user_id)
-        )
+        plain_key = await use_case.execute(CreateApiKeyDTO(user_id=sample_user.user_id))
 
         assert isinstance(plain_key, str)
         saved_user = await fake_user_repository.find_by_id(sample_user.user_id)
