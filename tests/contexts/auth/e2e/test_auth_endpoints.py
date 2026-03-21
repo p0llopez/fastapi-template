@@ -9,12 +9,15 @@ class TestAuthEndpoints:
     async def test_create_user_is_public(self, client: AsyncClient) -> None:
         response = await client.post(
             "/api/v1/auth/users",
-            json={"username": "testuser", "password": "secret123"},
+            json={
+                "username": f"testuser-{uuid4().hex[:8]}",
+                "password": "secret123",
+            },
         )
 
         assert response.status_code == 201
         data = response.json()
-        assert data["username"] == "testuser"
+        assert data["username"].startswith("testuser-")
         assert "id" in data
         assert "is_active" in data
         assert "created_at" in data

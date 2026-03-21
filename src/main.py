@@ -30,7 +30,6 @@ container = ApplicationContainer()
 @asynccontextmanager
 async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
     container.wire()
-
     register_event_subscribers(container.shared_container.event_bus())
 
     try:
