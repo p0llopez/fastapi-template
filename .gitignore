@@ -16,3 +16,6 @@ wheels/
 AGENTS.md
 .claude/
 .DS_Store
+
+# AI-generated plans and specs
+docs/superpowers/
