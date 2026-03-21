@@ -56,6 +56,9 @@ fastapi-template/
 ├── secrets/                       # Environment variables (.env)
 ├── docker-compose.yaml           # Docker services definition
 ├── Dockerfile                    # Multi-stage Docker build
+├── tests/                        # Test suite
+│   ├── support/                 # Shared fixtures (DB, containers, factories)
+│   └── contexts/                # Tests per bounded context (unit, integration, e2e)
 ├── Makefile                      # Development commands
 └── pyproject.toml               # Project dependencies & config
 ```
@@ -140,12 +143,22 @@ make migration-show                # Show current head revision
 make migration-sql                 # Generate SQL for upgrade head
 ```
 
+### Testing
+
+```bash
+make test                # Run all tests (Docker)
+make test-unit           # Run unit tests (Docker)
+make test-unit-local     # Run unit tests locally (fast, no Docker)
+make test-integration    # Run integration tests (Docker, requires DB)
+make test-e2e            # Run e2e tests (Docker, requires DB)
+make test-cov            # Run tests with coverage (Docker)
+```
+
 ### Code Quality
 
 ```bash
 make fmt             # Format code with ruff
 make lint            # Run linter with auto-fix
-make test            # Run tests with pytest
 make all             # Run install, format, lint, and test
 make clean           # Remove __pycache__ and .pyc files
 ```
