@@ -110,4 +110,8 @@ cli: ## Run CLI command in container (usage: make cli args="auth list-users")
 		$(COMPOSE) -f $(COMPOSE_FILE) exec $(SERVICE) uv run cli $(args); \
 	fi
 
-.PHONY: help start stop build restart logs shell db-shell migration-create migration-create-empty migration-upgrade migration-downgrade migration-history migration-current migration-show migration-sql all install fmt lint test test-unit test-integration test-e2e test-cov test-unit-local clean cli
+## Seed
+seed: ## Seed database with sample users and API keys
+	$(COMPOSE) -f $(COMPOSE_FILE) exec $(SERVICE) uv run python -m scripts.seed_db
+
+.PHONY: help start stop build restart logs shell db-shell migration-create migration-create-empty migration-upgrade migration-downgrade migration-history migration-current migration-show migration-sql all install fmt lint test test-unit test-integration test-e2e test-cov test-unit-local clean cli seed

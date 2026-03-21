@@ -14,6 +14,7 @@ services:
     volumes:
       - ./src:/app/src:ro
       - ./tests:/app/tests:ro
+      - ./scripts:/app/scripts:ro
       - ./migrations:/app/migrations
     entrypoint: ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "80", "--reload", "--no-access-log"]
     depends_on:
