@@ -7,6 +7,9 @@ from src.contexts.shared.infrastructure.cache import InMemoryCacheClient
 from src.contexts.shared.infrastructure.events.in_memory_event_bus import (
     InMemoryEventBus,
 )
+from src.contexts.shared.infrastructure.persistence.database_health_checker import (
+    DatabaseHealthChecker,
+)
 from src.settings import settings
 
 
@@ -35,7 +38,12 @@ class SharedContainer(containers.DeclarativeContainer):
         InMemoryEventBus,
     )
 
+    database_health_checker = providers.Factory(
+        DatabaseHealthChecker,
+        session_factory=session_factory,
+    )
+
     check_health_use_case = providers.Factory(
         CheckHealthUseCase,
-        session_factory=session_factory,
+        database_checker=database_health_checker,
     )

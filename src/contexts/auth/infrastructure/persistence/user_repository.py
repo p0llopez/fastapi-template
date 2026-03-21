@@ -7,7 +7,12 @@ from src.contexts.auth.domain.aggregates import ApiKey, User
 from src.contexts.auth.domain.repositories import UserRepository
 from src.contexts.auth.infrastructure.persistence.models import ApiKeyModel, UserModel
 from src.contexts.shared.domain.cache_client import CacheClient
-from src.contexts.shared.domain.pagination import CursorParams, CursorResult
+from src.contexts.shared.domain.pagination import (
+    CursorParams,
+    CursorResult,
+    decode_cursor,
+    encode_cursor,
+)
 
 
 class UserSQLAlchemyRepository(UserRepository):
@@ -145,25 +150,64 @@ class UserSQLAlchemyRepository(UserRepository):
                 selectinload(UserModel.api_keys)
             )
 
+            is_previous = False
             if params.cursor:
-                query = query.where(UserModel.user_id > params.cursor)
+                direction, cursor_ts, cursor_id = decode_cursor(params.cursor)
+                is_previous = direction == "previous"
+                if is_previous:
+                    query = query.where(
+                        (UserModel.created_at, UserModel.user_id)
+                        > (cursor_ts, str(cursor_id))
+                    ).order_by(
+                        UserModel.created_at.asc(), UserModel.user_id.asc()
+                    )
+                else:
+                    query = query.where(
+                        (UserModel.created_at, UserModel.user_id)
+                        < (cursor_ts, str(cursor_id))
+                    ).order_by(
+                        UserModel.created_at.desc(), UserModel.user_id.desc()
+                    )
+            else:
+                query = query.order_by(
+                    UserModel.created_at.desc(), UserModel.user_id.desc()
+                )
 
-            query = query.order_by(UserModel.user_id).limit(
-                params.page_size + 1
-            )
-
+            query = query.limit(params.page_size + 1)
             result = await session.execute(query)
             models = list(result.scalars().all())
 
-            has_next = len(models) > params.page_size
-            items = models[: params.page_size]
+            has_more = len(models) > params.page_size
+            models = models[: params.page_size]
+
+            if is_previous:
+                models.reverse()
+
+            items = [m.to_domain() for m in models]
+
+            next_cursor = None
+            previous_cursor = None
+
+            if items:
+                last = items[-1]
+                first = items[0]
+
+                if (not is_previous and has_more) or is_previous:
+                    next_cursor = encode_cursor(
+                        "next", last.created_at, last.user_id
+                    )
+
+                if (not is_previous and params.cursor) or (
+                    is_previous and has_more
+                ):
+                    previous_cursor = encode_cursor(
+                        "previous", first.created_at, first.user_id
+                    )
 
             return CursorResult(
-                items=[m.to_domain() for m in items],
-                next_cursor=(
-                    str(items[-1].user_id) if has_next and items else None
-                ),
-                previous_cursor=params.cursor,
+                items=items,
+                next_cursor=next_cursor,
+                previous_cursor=previous_cursor,
             )
 
     async def find_api_key_by_hash(self, key_hash: str) -> ApiKey | None:

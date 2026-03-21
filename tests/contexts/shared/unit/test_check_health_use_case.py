@@ -1,33 +1,25 @@
-from unittest.mock import AsyncMock, MagicMock
-
 import pytest
 
 from src.contexts.shared.application.use_cases.check_health import (
     CheckHealthUseCase,
 )
+from src.contexts.shared.domain.health_checker import HealthChecker
 
 
-def _make_session_factory(raise_exception: bool = False) -> MagicMock:
-    session = AsyncMock()
-    if raise_exception:
-        session.execute.side_effect = Exception("DB connection failed")
-    else:
-        session.execute.return_value = None
+class FakeHealthyChecker(HealthChecker):
+    async def check(self) -> dict[str, object]:
+        return {"status": "healthy", "latency_ms": 1.5}
 
-    context_manager = AsyncMock()
-    context_manager.__aenter__.return_value = session
-    context_manager.__aexit__.return_value = None
 
-    session_factory = MagicMock()
-    session_factory.return_value = context_manager
-    return session_factory
+class FakeUnhealthyChecker(HealthChecker):
+    async def check(self) -> dict[str, object]:
+        return {"status": "unhealthy", "latency_ms": 0}
 
 
 @pytest.mark.unit
 class TestCheckHealthUseCase:
     async def test_returns_healthy_when_db_responds(self) -> None:
-        session_factory = _make_session_factory(raise_exception=False)
-        use_case = CheckHealthUseCase(session_factory)
+        use_case = CheckHealthUseCase(database_checker=FakeHealthyChecker())
 
         result = await use_case.execute()
 
@@ -37,8 +29,7 @@ class TestCheckHealthUseCase:
         assert isinstance(result.components["database"]["latency_ms"], float)
 
     async def test_returns_unhealthy_when_db_fails(self) -> None:
-        session_factory = _make_session_factory(raise_exception=True)
-        use_case = CheckHealthUseCase(session_factory)
+        use_case = CheckHealthUseCase(database_checker=FakeUnhealthyChecker())
 
         result = await use_case.execute()
 

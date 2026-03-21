@@ -28,7 +28,9 @@ class AuthContainer(containers.DeclarativeContainer):
 
     # Use cases
     create_api_key_use_case = providers.Factory(
-        CreateApiKeyUseCase, user_repository=user_repository
+        CreateApiKeyUseCase,
+        user_repository=user_repository,
+        event_bus=shared.event_bus,
     )
     authenticate_with_api_key_use_case = providers.Factory(
         AuthenticateWithApiKeyUseCase, user_repository=user_repository

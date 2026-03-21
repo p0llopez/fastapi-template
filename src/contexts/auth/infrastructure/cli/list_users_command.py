@@ -13,13 +13,13 @@ def register_list_users_command(app: typer.Typer) -> None:
     async def list_users() -> None:
         container = AuthContainer(shared=SharedContainer())
         use_case = container.list_users_use_case()
-        users = await use_case.execute(ListUsersDTO())
+        result = await use_case.execute(ListUsersDTO())
 
-        if not users:
+        if not result.items:
             console.print("[yellow]No users registered.[/yellow]")
             return
 
-        table = Table(title=f"Users ({len(users)})")
+        table = Table(title=f"Users ({len(result.items)})")
         table.add_column("ID", style="cyan", no_wrap=True)
         table.add_column("Username", style="green")
         table.add_column("Email", style="blue")
@@ -27,7 +27,7 @@ def register_list_users_command(app: typer.Typer) -> None:
         table.add_column("Active", justify="center")
         table.add_column("Created", style="dim")
 
-        for user in users:
+        for user in result.items:
             active_keys = len(user.get_active_api_keys())
             table.add_row(
                 str(user.user_id),

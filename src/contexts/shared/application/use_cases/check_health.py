@@ -1,8 +1,6 @@
-import time
 from dataclasses import dataclass, field
 
-from sqlalchemy import text
-from sqlalchemy.orm import sessionmaker
+from src.contexts.shared.domain.health_checker import HealthChecker
 
 
 @dataclass
@@ -12,23 +10,13 @@ class HealthResult:
 
 
 class CheckHealthUseCase:
-    def __init__(self, session_factory: sessionmaker) -> None:
-        self.session_factory = session_factory
+    def __init__(self, database_checker: HealthChecker) -> None:
+        self.database_checker = database_checker
 
     async def execute(self) -> HealthResult:
         result = HealthResult()
-        db_status = await self._check_database()
+        db_status = await self.database_checker.check()
         result.components["database"] = db_status
         if db_status["status"] == "unhealthy":
             result.status = "unhealthy"
         return result
-
-    async def _check_database(self) -> dict[str, object]:
-        try:
-            start = time.perf_counter()
-            async with self.session_factory() as session:
-                await session.execute(text("SELECT 1"))
-            latency = (time.perf_counter() - start) * 1000
-            return {"status": "healthy", "latency_ms": round(latency, 2)}
-        except Exception:
-            return {"status": "unhealthy", "latency_ms": 0}

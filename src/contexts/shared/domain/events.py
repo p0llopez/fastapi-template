@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
-from collections.abc import Callable, Coroutine
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any
 
 
 @dataclass(frozen=True, slots=True)
@@ -10,7 +9,7 @@ class DomainEvent:
     occurred_on: datetime = field(default_factory=lambda: datetime.now(UTC), kw_only=True)
 
 
-EventHandler = Callable[[DomainEvent], Coroutine[Any, Any, None]]
+EventHandler = Callable[[DomainEvent], Awaitable[None]]
 
 
 class EventBus(ABC):
