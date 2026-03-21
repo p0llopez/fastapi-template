@@ -55,11 +55,14 @@ jobs:
       - name: Install dependencies
         run: uv sync --frozen
 
+      - name: Run unit tests
+        run: uv run pytest -m unit --tb=short
+
       - name: Run migrations
         run: uv run alembic upgrade head
 
-      - name: Run tests
-        run: uv run pytest tests/ --tb=short
+      - name: Run e2e tests
+        run: uv run pytest -m e2e --tb=short
 
   build:
     runs-on: ubuntu-latest
