@@ -23,14 +23,14 @@ repos:
         name: "🌳 git · Block large file commits"
         args: ['--maxkb=5000']
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.9.1
+    rev: v4.13.9
     hooks:
       - id: commitizen
         name: "🌳 git · Validate commit message"
         stages: [commit-msg]
         additional_dependencies: [cz-conventional-gitmoji]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.3
+    rev: v0.15.8
     hooks:
       - id: ruff-check
         name: "🧹 ruff · Check & fix"
@@ -38,7 +38,7 @@ repos:
       - id: ruff-format
         name: "🧹 ruff · Format"
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.28.0
+    rev: v8.30.1
     hooks:
       - id: gitleaks
         name: "🔒 gitleaks · Secret scan"
@@ -53,12 +53,12 @@ repos:
           - mdformat-frontmatter # YAML frontmatter support
           - ruff # Required for mdformat-ruff
   - repo: https://github.com/google/yamlfmt
-    rev: v0.20.0
+    rev: v0.21.0
     hooks:
       - id: yamlfmt
         name: "📄 yaml · Format YAML files"
   - repo: https://github.com/mrtazz/checkmake.git
-    rev: 0.2.2
+    rev: v0.3.2
     hooks:
       - id: checkmake
         name: "🐮 Makefile · Lint Makefile"
