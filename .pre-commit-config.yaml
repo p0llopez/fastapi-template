@@ -23,14 +23,14 @@ repos:
         name: "🌳 git · Block large file commits"
         args: ['--maxkb=5000']
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.13.9
+    rev: v4.13.10
     hooks:
       - id: commitizen
         name: "🌳 git · Validate commit message"
         stages: [commit-msg]
         additional_dependencies: [cz-conventional-gitmoji]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.8
+    rev: v0.15.10
     hooks:
       - id: ruff-check
         name: "🧹 ruff · Check & fix"
